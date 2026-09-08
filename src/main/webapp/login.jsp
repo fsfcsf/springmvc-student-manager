@@ -1,4 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <html>
 <head>
     <title>登录</title>
@@ -10,11 +11,11 @@
     <div style="color: red;">${error}</div>
 </c:if>
 
-<form action="user/login" method="post">
+<form action="${pageContext.request.contextPath}/user/login" method="post">
     账号：<input type="text" name="uname" placeholder="请输入账号"><br>
     密码：<input type="password" name="password" placeholder="请输入密码"><br>
     <button type="submit">登录</button>
 </form>
-<a href="index.jsp">返回首页</a>
+<a href="${pageContext.request.contextPath}/index.jsp">返回首页</a>
 </body>
 </html>

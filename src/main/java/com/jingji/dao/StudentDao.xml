@@ -12,22 +12,35 @@
 
     <!-- 新增学生 -->
     <insert id="insertStudent">
-        insert into student2 values (#{id},#{name},#{uname},#{upass},#{age},#{email})
+        insert into student2 (id, name, uname, upass, upass_md5, age, email, phone, gender)
+        values (#{id}, #{name}, #{uname}, #{upass}, #{upassMd5}, #{age}, #{email}, #{phone}, #{gender})
     </insert>
 
     <!-- 根据 ID 查询单个学生 -->
     <select id="queryStudentById" resultType="Student">
-        SELECT id,name,uname,upass,age,email from student2 WHERE id = #{stuId}
+        SELECT id, name, uname, upass, upass_md5, age, email, phone, gender,
+               avatar, create_time, update_time
+        FROM student2 WHERE id = #{stuId}
     </select>
 
     <!-- 查询所有学生，按 ID 升序排列 -->
     <select id="queryAll" resultType="Student">
-        SELECT id,name,uname,upass,age,email from student2 order by id asc
+        SELECT id, name, uname, upass, upass_md5, age, email, phone, gender,
+               avatar, create_time, update_time
+        FROM student2 ORDER BY id ASC
     </select>
 
     <!-- 根据 ID 删除学生 -->
     <delete id="deleteStudentById">
         delete from student2 where id = #{stuId}
+    </delete>
+
+    <!-- 批量删除学生，使用 foreach 拼接 IN 条件 -->
+    <delete id="deleteByIds">
+        delete from student2 where id in
+        <foreach collection="list" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
     </delete>
 
     <!-- 根据 ID 更新学生信息 -->
@@ -36,19 +49,70 @@
         SET name = #{name},
             uname = #{uname},
             upass = #{upass},
+            upass_md5 = #{upassMd5},
             age = #{age},
-            email = #{email}
+            email = #{email},
+            phone = #{phone},
+            gender = #{gender}
         WHERE id = #{id}
     </update>
 
-    <!-- 根据姓名模糊查询，使用 like 进行模糊匹配 -->
+    <!-- 修改密码 -->
+    <update id="updatePassword">
+        UPDATE student2 SET upass = #{plainPass}, upass_md5 = #{md5Pass} WHERE id = #{stuId}
+    </update>
+
+    <!-- 根据姓名模糊查询 -->
     <select id="findByName" resultType="Student">
-        SELECT id,name,uname,upass,age,email FROM student2 WHERE name like #{name};
+        SELECT id, name, uname, upass, upass_md5, age, email, phone, gender,
+               avatar, create_time, update_time
+        FROM student2 WHERE name like #{name}
+    </select>
+
+    <!-- 多条件查询 -->
+    <select id="searchStudents" resultType="Student" parameterType="Student">
+        SELECT id, name, uname, upass, upass_md5, age, email, phone, gender,
+               avatar, create_time, update_time
+        FROM student2
+        <where>
+            <if test="id != 0">
+                AND id = #{id}
+            </if>
+            <if test="name != null and name != ''">
+                AND name like concat('%', #{name}, '%')
+            </if>
+            <if test="age != 0">
+                AND age = #{age}
+            </if>
+            <if test="email != null and email != ''">
+                AND email like concat('%', #{email}, '%')
+            </if>
+        </where>
+        ORDER BY id ASC
     </select>
 
     <!-- 根据账号精确查询，用于登录校验 -->
     <select id="findByUname" resultType="Student">
-        SELECT id,name,uname,upass,age,email FROM student2 WHERE uname = #{uname}
+        SELECT id, name, uname, upass, upass_md5, age, email, phone, gender,
+               avatar, create_time, update_time, remember_token
+        FROM student2 WHERE uname = #{uname}
     </select>
+
+    <!-- 更新头像路径 -->
+    <update id="updateAvatar">
+        UPDATE student2 SET avatar = #{avatar} WHERE id = #{stuId}
+    </update>
+
+    <!-- 根据记住我 Token 查询用户 -->
+    <select id="findByToken" resultType="Student">
+        SELECT id, name, uname, upass, upass_md5, age, email, phone, gender,
+               avatar, create_time, update_time, remember_token
+        FROM student2 WHERE remember_token = #{token}
+    </select>
+
+    <!-- 更新记住我 Token -->
+    <update id="updateToken">
+        UPDATE student2 SET remember_token = #{token} WHERE id = #{stuId}
+    </update>
 
 </mapper>

@@ -98,6 +98,20 @@
       <artifactId>logback-classic</artifactId>
       <version>1.2.3</version>
     </dependency>
+
+    <!-- Apache POI：用于 Excel 文件导出 -->
+    <dependency>
+      <groupId>org.apache.poi</groupId>
+      <artifactId>poi</artifactId>
+      <version>4.1.2</version>
+    </dependency>
+
+    <!-- Apache Commons FileUpload：用于头像上传 -->
+    <dependency>
+      <groupId>commons-fileupload</groupId>
+      <artifactId>commons-fileupload</artifactId>
+      <version>1.4</version>
+    </dependency>
   </dependencies>
   <build>
     <finalName>springMVCTest01</finalName>

@@ -33,10 +33,10 @@
         <input type="text" name="uname" value="${student.uname}" required>
     </div>
 
-    <!-- 密码字段 - 确保可编辑 -->
+    <!-- 密码字段 — 不显示原密码，留空表示不修改 -->
     <div>
         <label>密码:</label>
-        <input type="password" name="upass" value="${student.upass}" required>
+        <input type="password" name="upass" placeholder="留空则不修改密码">
     </div>
 
     <!-- 年龄字段 -->
@@ -51,8 +51,24 @@
         <input type="email" name="email" value="${student.email}" required>
     </div>
 
+    <!-- 手机号字段 -->
+    <div>
+        <label>手机号:</label>
+        <input type="text" name="phone" value="${student.phone}">
+    </div>
+
+    <!-- 性别字段 -->
+    <div>
+        <label>性别:</label>
+        <select name="gender">
+            <option value=""  ${empty student.gender ? 'selected' : ''}>请选择</option>
+            <option value="男" ${student.gender == '男' ? 'selected' : ''}>男</option>
+            <option value="女" ${student.gender == '女' ? 'selected' : ''}>女</option>
+        </select>
+    </div>
+
     <button type="submit">保存修改</button>
-        <a href="${pageContext.request.contextPath}/user/showAllStudents"
+        <a href="${pageContext.request.contextPath}/user/showAllStudent"
            style="margin-left: 10px;">返回列表</a>
 </form>
 </body>

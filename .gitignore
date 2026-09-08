@@ -39,3 +39,6 @@ build/
 
 ### Sensitive Config ###
 src/main/resources/jdbc.properties
+
+### Uploads ###
+src/main/webapp/uploads/

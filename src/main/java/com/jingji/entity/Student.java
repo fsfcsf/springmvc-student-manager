@@ -19,8 +19,22 @@ public class Student {
     private String uname;
     // 邮箱
     private String email;
-    // 密码（存储的是 MD5 加密后的密文）
+    // 密码（明文，注册时用户输入）
     private String upass;
+    // MD5 加密后的密码（用于登录校验）
+    private String upassMd5;
+    // 手机号
+    private String phone;
+    // 性别（男/女）
+    private String gender;
+    // 创建时间
+    private String createTime;
+    // 最后更新时间
+    private String updateTime;
+    // 头像文件路径
+    private String avatar;
+    // 记住我自动登录 Token
+    private String rememberToken;
 
     // 无参构造方法
     public Student() {
@@ -46,6 +60,34 @@ public class Student {
 
     public String getUpass() {
         return upass;
+    }
+
+    public String getUpassMd5() {
+        return upassMd5;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public String getCreateTime() {
+        return createTime;
+    }
+
+    public String getUpdateTime() {
+        return updateTime;
+    }
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public String getRememberToken() {
+        return rememberToken;
     }
 
     public String getEmail() {
@@ -76,6 +118,34 @@ public class Student {
         this.upass = upass;
     }
 
+    public void setUpassMd5(String upassMd5) {
+        this.upassMd5 = upassMd5;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public void setCreateTime(String createTime) {
+        this.createTime = createTime;
+    }
+
+    public void setUpdateTime(String updateTime) {
+        this.updateTime = updateTime;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
+    }
+
+    public void setRememberToken(String rememberToken) {
+        this.rememberToken = rememberToken;
+    }
+
     // 重写 toString 方法，方便打印调试
     @Override
     public String toString() {
@@ -85,7 +155,8 @@ public class Student {
                 ", age=" + age +
                 ", uname='" + uname + '\'' +
                 ", email='" + email + '\'' +
-                ", upass='" + upass + '\'' +
+                ", phone='" + phone + '\'' +
+                ", gender='" + gender + '\'' +
                 '}';
     }
 }

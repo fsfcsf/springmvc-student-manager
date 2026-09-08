@@ -30,13 +30,12 @@ public class StudentServiceImpl implements StudentService {
 
     /**
      * 新增学生
-     * 先把密码用 MD5 加密，再存入数据库
+     * 把明文密码存入 upass 字段，MD5 加密后存入 upass_md5 字段
      */
     @Override
     public int addStudent(Student student) {
-        // 对密码进行 MD5 加密，防止明文存储
-        student.setUpass(MD5Util.encrypt(student.getUpass()));
-        // 调用 dao 层插入数据
+        // 对密码进行 MD5 加密，存入 upass_md5 字段（用于登录校验）
+        student.setUpassMd5(MD5Util.encrypt(student.getUpass()));
         int result = studentDao.insertStudent(student);
         log.info("新增学生: id={}, name={}", student.getId(), student.getName());
         return result;
@@ -61,15 +60,19 @@ public class StudentServiceImpl implements StudentService {
 
     /**
      * 更新学生信息
-     * 如果传了密码才加密，否则保持原密码不变
+     * 如果传了密码，同时更新明文和 MD5 加密两个字段
      */
     @Override
     public boolean updateStudent(Student student) {
-        // 判断密码是否为空，不为空才加密
+        // 判断密码是否为空，为空则保持原密码不变
         if (student.getUpass() != null && !student.getUpass().isEmpty()) {
-            student.setUpass(MD5Util.encrypt(student.getUpass()));
+            student.setUpassMd5(MD5Util.encrypt(student.getUpass()));
+        } else {
+            // 不修改密码时，从数据库取出原密码，防止被覆盖为 null
+            Student old = studentDao.queryStudentById(student.getId());
+            student.setUpass(old.getUpass());
+            student.setUpassMd5(old.getUpassMd5());
         }
-        // 执行更新，返回值大于 0 表示更新成功
         boolean result = studentDao.updateStudentById(student) > 0;
         log.info("更新学生: id={}, name={}, 结果={}", student.getId(), student.getName(), result);
         return result;
@@ -85,6 +88,50 @@ public class StudentServiceImpl implements StudentService {
     }
 
     /**
+     * 批量删除学生
+     * @param ids 要删除的学生 ID 列表
+     * @return 成功删除的条数
+     */
+    @Override
+    public int batchDelete(List<Integer> ids) {
+        int count = studentDao.deleteByIds(ids);
+        log.info("批量删除: 共删除 {} 条, ids={}", count, ids);
+        return count;
+    }
+
+    /**
+     * 修改密码
+     * 先校验原密码是否正确，再加密新密码并更新
+     */
+    @Override
+    public boolean changePassword(int stuId, String oldPass, String newPass) {
+        // 1. 查出原用户信息
+        Student student = studentDao.queryStudentById(stuId);
+        // 2. 校验原密码：优先比对 upass_md5，如果为空则降级比对 upass 明文
+        String encryptedOld = MD5Util.encrypt(oldPass);
+        boolean oldPassOk = false;
+        // 先比对加密字段
+        if (student.getUpassMd5() != null
+                && encryptedOld != null
+                && encryptedOld.equals(student.getUpassMd5())) {
+            oldPassOk = true;
+        }
+        // 再比对明文字段（兼容旧数据）
+        if (!oldPassOk && oldPass.equals(student.getUpass())) {
+            oldPassOk = true;
+        }
+        if (oldPassOk) {
+            // 3. 加密新密码并更新，upass 存明文，upass_md5 存 MD5
+            String encryptedNew = MD5Util.encrypt(newPass);
+            studentDao.updatePassword(stuId, newPass, encryptedNew);
+            log.info("修改密码成功: stuId={}", stuId);
+            return true;
+        }
+        log.warn("修改密码失败（原密码错误）: stuId={}", stuId);
+        return false;
+    }
+
+    /**
      * 根据姓名模糊查询学生
      */
     @Override
@@ -94,8 +141,19 @@ public class StudentServiceImpl implements StudentService {
     }
 
     /**
+     * 多条件查询学生
+     * 支持按 ID、姓名、年龄、邮箱组合查询
+     */
+    @Override
+    public List<Student> searchStudents(Student student) {
+        log.debug("多条件查询: id={}, name={}, age={}, email={}",
+                student.getId(), student.getName(), student.getAge(), student.getEmail());
+        return studentDao.searchStudents(student);
+    }
+
+    /**
      * 登录校验
-     * 先根据账号查用户，再比对加密后的密码
+     * 优先用 upass_md5 字段比对，如果为空则降级用 upass 明文比对（兼容旧数据）
      *
      * @param uname 账号
      * @param upass 明文密码
@@ -106,15 +164,51 @@ public class StudentServiceImpl implements StudentService {
         // 1. 根据账号查询用户
         Student student = studentDao.findByUname(uname);
         if (student != null) {
-            // 2. 把用户输入的密码加密后，跟数据库中的密码对比
+            // 2. 优先用 upass_md5 加密字段比对
             String encryptedPass = MD5Util.encrypt(upass);
-            if (encryptedPass != null && encryptedPass.equals(student.getUpass())) {
+            if (student.getUpassMd5() != null
+                    && encryptedPass != null
+                    && encryptedPass.equals(student.getUpassMd5())) {
                 log.info("用户登录成功: uname={}", uname);
-                return student; // 密码匹配，登录成功
+                return student;
+            }
+            // 3. 降级用 upass 明文比对（兼容未升级的旧数据）
+            if (upass.equals(student.getUpass())) {
+                // 密码匹配成功，把 upass 明文和 upass_md5 加密值都补齐
+                String newEncrypted = MD5Util.encrypt(upass);
+                studentDao.updatePassword(student.getId(), upass, newEncrypted);
+                log.info("用户登录成功，密码已自动升级: uname={}", uname);
+                return student;
             }
         }
         // 账号不存在或密码错误
         log.warn("用户登录失败: uname={}", uname);
         return null;
+    }
+
+    /**
+     * 更新学生头像
+     */
+    @Override
+    public void updateAvatar(int stuId, String avatar) {
+        studentDao.updateAvatar(stuId, avatar);
+        log.info("更新头像: stuId={}, avatar={}", stuId, avatar);
+    }
+
+    /**
+     * 根据记住我 Token 查询用户
+     */
+    @Override
+    public Student findByToken(String token) {
+        return studentDao.findByToken(token);
+    }
+
+    /**
+     * 保存记住我 Token
+     */
+    @Override
+    public void updateToken(int stuId, String token) {
+        studentDao.updateToken(stuId, token);
+        log.debug("更新记住我Token: stuId={}", stuId);
     }
 }

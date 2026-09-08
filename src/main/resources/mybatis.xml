@@ -4,18 +4,6 @@
         "http://mybatis.org/dtd/mybatis-3-config.dtd">
 <configuration>
 
-    <!-- PageHelper 分页插件配置 -->
-    <plugins>
-        <plugin interceptor="com.github.pagehelper.PageInterceptor">
-            <!-- 分页参数合理化：pageNum<=0 时查第一页，pageNum>总页数时查最后一页 -->
-            <property name="reasonable" value="true"/>
-            <!-- 支持通过 Mapper 接口参数来传递分页参数 -->
-            <property name="supportMethodsArguments" value="true"/>
-            <!-- 分页参数名：pageNum=页码, pageSize=每页条数 -->
-            <property name="params" value="count=countSql"/>
-        </plugin>
-    </plugins>
-
     <!--settings：控制mybatis全局行为-->
     <settings>
         <!--设置mybatis输出日志-->
@@ -31,12 +19,23 @@
         <package name="com.jingji.entity"/>
     </typeAliases>
 
-        <!-- 如果有类型处理器，确保编码 -->
-        <typeHandlers>
-            <typeHandler handler="org.apache.ibatis.type.StringTypeHandler"
-                         javaType="java.lang.String" jdbcType="VARCHAR"/>
-        </typeHandlers>
+    <!-- 如果有类型处理器，确保编码 -->
+    <typeHandlers>
+        <typeHandler handler="org.apache.ibatis.type.StringTypeHandler"
+                     javaType="java.lang.String" jdbcType="VARCHAR"/>
+    </typeHandlers>
 
+    <!-- PageHelper 分页插件配置 -->
+    <plugins>
+        <plugin interceptor="com.github.pagehelper.PageInterceptor">
+            <!-- 分页参数合理化：pageNum<=0 时查第一页，pageNum>总页数时查最后一页 -->
+            <property name="reasonable" value="true"/>
+            <!-- 支持通过 Mapper 接口参数来传递分页参数 -->
+            <property name="supportMethodsArguments" value="true"/>
+            <!-- 分页参数名：pageNum=页码, pageSize=每页条数 -->
+            <property name="params" value="count=countSql"/>
+        </plugin>
+    </plugins>
 
     <!-- sql mapper(sql映射文件)的位置-->
     <mappers>

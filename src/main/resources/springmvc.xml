@@ -67,9 +67,18 @@
             <mvc:mapping path="/user/**"/>
             <mvc:exclude-mapping path="/user/login"/>
             <mvc:exclude-mapping path="/user/register"/>
-            <bean class="com.jingji.controller.LoginInterceptor"/>
+            <mvc:exclude-mapping path="/user/registerSuccess"/>
+            <mvc:exclude-mapping path="/user/captcha"/>
+            <bean class="com.jingji.controller.LoginInterceptor">
+                <property name="studentService" ref="studentService"/>
+            </bean>
         </mvc:interceptor>
     </mvc:interceptors>
+
+    <!--配置文件上传解析器，用于头像上传-->
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <property name="maxUploadSize" value="2097152"/> <!-- 最大 2MB -->
+    </bean>
 
     <!--对静态资源文件不做请求拦截处理，比如：css,js,images等-->
     <mvc:default-servlet-handler/>

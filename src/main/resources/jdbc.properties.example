@@ -1,5 +1,5 @@
 # 数据库连接配置（模板文件）
-# 使用时请复制为 jdbc.properties 并修改为你的实际配置
+
 jdbc.url=jdbc:mysql://localhost:3306/springdb?useUnicode=true&characterEncoding=utf8
 jdbc.username=your_username
 jdbc.password=your_password
