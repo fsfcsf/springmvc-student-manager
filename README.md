@@ -1,6 +1,6 @@
 # Spring MVC 学生管理系统
 
-> 2025年3月学习 JavaWeb 期间的练手项目，基于 Spring MVC + MyBatis 构建的学生信息管理系统。
+> 学习 JavaWeb 期间的练手项目，基于 Spring MVC + MyBatis 构建的学生信息管理系统。
 
 ## 项目概述
 
