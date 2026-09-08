@@ -9,16 +9,19 @@
   <url>http://maven.apache.org</url>
   <dependencies>
 
-
-
-
-    <!-- https://mvnrepository.com/artifact/org.springframework/spring-webmvc -->
+    <!-- Spring MVC 核心：DispatcherServlet、@Controller、HandlerMapping 等
+         全在此包；传递引入 spring-core/spring-beans/spring-context 等全家桶。
+         学习点：同一工程的 Spring 家族版本应保持一致（下面 spring-context
+         显式声明 5.2.5 与这里 5.2.25 不一致，实际以就近声明为准，属可优化点） -->
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-webmvc</artifactId>
       <version>5.2.25.RELEASE</version>
     </dependency>
 
+    <!-- Servlet API：scope=provided 表示"编译时要用、打包时不带"——
+         Tomcat 自带这份 jar，war 里再带一份会冲突报 ClassCastException，
+         这是 war 包项目的经典配置 -->
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>javax.servlet-api</artifactId>
@@ -26,60 +29,68 @@
       <scope>provided</scope>
     </dependency>
 
-    <!--spring核心ioc-->
+    <!-- Spring IoC 核心：ApplicationContext 容器、依赖注入（@Service/@Autowired
+         背后都是它）。虽然 spring-webmvc 会传递引入本包，显式声明可钉住版本；
+         版本应与 webmvc 统一（见上方注释的不一致说明） -->
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-context</artifactId>
       <version>5.2.5.RELEASE</version>
     </dependency>
-    <!--做spring事务用到的-->
+    <!-- 事务抽象层：@Transactional、事务传播行为等统一编程模型。
+         mybatis-spring 底层管理数据库连接（SpringManagedTransaction）也要用它的类 -->
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-tx</artifactId>
       <version>5.2.5.RELEASE</version>
     </dependency>
+    <!-- JDBC 支持层：把 MyBatis 异常翻译成 Spring 的 DataAccessException 体系，
+         且将来启用声明式事务所需的 DataSourceTransactionManager 也在此包。
+         本项目目前是单表 CRUD（自动提交即可），多表操作时再配置事务管理器 -->
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-jdbc</artifactId>
       <version>5.2.5.RELEASE</version>
     </dependency>
-    <!--mybatis依赖-->
+    <!-- MyBatis 核心：SqlSessionFactory/Executor、动态 SQL（<if>/<where>/<foreach>）。
+         注意它本身不连数据库——真正建立连接靠下面的 mysql 驱动 -->
     <dependency>
       <groupId>org.mybatis</groupId>
       <artifactId>mybatis</artifactId>
       <version>3.5.1</version>
     </dependency>
-    <!--mybatis和spring集成的依赖-->
+    <!--mybatis和spring集成的依赖：SqlSessionFactoryBean、MapperScannerConfigurer 都在这里-->
     <dependency>
       <groupId>org.mybatis</groupId>
       <artifactId>mybatis-spring</artifactId>
       <version>1.3.1</version>
     </dependency>
-    <!-- https://mvnrepository.com/artifact/org.mybatis/mybatis-spring -->
-    <!--    <dependency>-->
-    <!--      <groupId>org.mybatis</groupId>-->
-    <!--      <artifactId>mybatis-spring</artifactId>-->
-    <!--      <version>3.0.4</version>-->
-    <!--    </dependency>-->
-    <!--mysql驱动-->
+    <!--mysql驱动：JDBC 协议实现，Java 代码与 MySQL 之间的"翻译官"-->
     <dependency>
       <groupId>mysql</groupId>
       <artifactId>mysql-connector-java</artifactId>
       <version>5.1.9</version>
     </dependency>
-    <!-- PageHelper 分页插件 -->
+    <!-- PageHelper 分页插件：基于 MyBatis 拦截器机制，拦截 Executor 的 query，
+         自动把业务 SQL 改写成 "count 总数 + limit 分页" 两句（插件配置见 mybatis.xml）。
+         好处是 Service 层只需 PageHelper.startPage() 一行，SQL 一句不用改 -->
     <dependency>
       <groupId>com.github.pagehelper</groupId>
       <artifactId>pagehelper</artifactId>
       <version>5.3.0</version>
     </dependency>
 
-    <!--阿里公司的数据库连接池-->
+    <!-- Druid 连接池（阿里出品）：预先建好连接循环"借出→归还"，
+         省去每次请求 TCP 握手 + 权限认证的开销（配置见 springmvc.xml 数据源 Bean）。
+         它还自带 SQL 监控页面，本项目未启用，只用了基础连接池能力 -->
     <dependency>
       <groupId>com.alibaba</groupId>
       <artifactId>druid</artifactId>
       <version>1.1.12</version>
     </dependency>
+    <!-- JUnit：maven-archetype-webapp 自带的老版本，且项目还没有测试代码。
+         学习点：真正写单测时建议升级 junit 4.13.2（或 JUnit 5），
+         scope=test 表示只在 src/test 里可用，不会打进 war 包 -->
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
@@ -87,7 +98,10 @@
       <scope>test</scope>
     </dependency>
 
-    <!-- SLF4J 日志 -->
+    <!-- 日志门面 + 实现的经典组合（类似 JDBC 与驱动的分离）：
+         slf4j-api 只定义接口，logback-classic 是实现并自动完成绑定。
+         代码统一写 LoggerFactory.getLogger(...)，将来换 Log4j2 只换依赖不改代码。
+         相比 System.out.println：有级别过滤、可格式化、可输出到文件（配置见 logback.xml） -->
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
@@ -115,7 +129,10 @@
   </dependencies>
   <build>
     <finalName>springMVCTest01</finalName>
-    <!--目的是把src/main/java目录中的xml文件包含到输出结果中。输出到classes目录中-->
+    <!-- 为什么需要这段：Maven 默认只把 src/main/resources 打进包，
+         而 StudentDao.xml 放在 src/main/java（与接口同包，MyBatis 的惯例），
+         不配置的话编译产物里找不到 Mapper XML，启动直接报
+         "Invalid bound statement (not found)"——新手高频报错之一 -->
     <resources>
       <resource>
         <directory>src/main/java</directory><!--所在的目录-->

@@ -1,3 +1,13 @@
+<%--
+  编辑学生页（表单回显的典型示范）
+  【学习要点】
+  1. 隐藏域 <input type="hidden" name="id">：id 不需要用户看到/修改，
+     但提交时必须带上，让 UPDATE 知道改哪一行
+  2. 回显三件套：文本框 value="${student.name}"；密码框留空（placeholder 提示
+     "留空则不修改"）；下拉框用 EL 三目 ${student.gender == '男' ? 'selected' : ''}
+     控制哪一项被选中——性别回显的关键写法
+  3. 提交后 Spring 按 setter 名自动把表单封装成 Student 对象（实体参数绑定）
+--%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>

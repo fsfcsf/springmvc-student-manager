@@ -1,3 +1,13 @@
+<%--
+  个人中心页（头像 + 资料编辑）
+  【学习要点】
+  1. 文件上传表单两要素：method="post" + enctype="multipart/form-data"——
+     缺 enctype 时浏览器只会传文件名，不传文件内容
+  2. 头像回显：<img src="${contextPath}${user.avatar}">——数据库存的是相对路径
+     /uploads/xxx.jpg，拼上应用根路径才是完整可访问的 URL
+  3. 编号/账号只读展示（<span>）：主键和登录账号不允许从资料页修改，
+     降低误操作与安全风险
+--%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page isELIgnored="false" %>

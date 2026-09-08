@@ -4,9 +4,25 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <!--
-    StudentDao 的 SQL 映射文件
-    每个标签的 id 对应 StudentDao 接口中的方法名
-    namespace 指定对应的接口全限定名
+    ═══════════════════════════════════════════════════════════════
+    StudentDao 的 SQL 映射文件（MyBatis Mapper）
+    ═══════════════════════════════════════════════════════════════
+    【两个"对上号"】
+      namespace = 接口全限定名  com.jingji.dao.StudentDao
+      每个标签的 id = 接口中的方法名
+      → 运行时代理对象按 "namespace + id" 定位要执行的 SQL，缺一不可
+
+    【#{} 与 ${} 的区别（面试高频）】
+      #{name} → 预编译占位符，变成 PreparedStatement 的 ?，值被驱动转义，防 SQL 注入
+      ${name} → 字符串直接拼接进 SQL，有注入风险，仅用于表名/列名/排序字段等
+                 无法参数化的位置，且必须白名单校验
+      本文件全部使用 #{}，模糊匹配的 % 交给 SQL 的 concat() 处理
+
+    【resultType="Student"】
+      用的是 mybatis.xml 的包别名：com.jingji.entity.Student 简写为 Student；
+      列 → 属性的自动填充只对"列名 = 属性名"的列生效（如 uname、avatar），
+      下划线列（upass_md5、create_time 等）必须先在 mybatis.xml 里打开
+      mapUnderscoreToCamelCase 开关才会映射到驼峰属性，否则该属性恒为 null
 -->
 <mapper namespace="com.jingji.dao.StudentDao">
 
@@ -35,7 +51,18 @@
         delete from student2 where id = #{stuId}
     </delete>
 
-    <!-- 批量删除学生，使用 foreach 拼接 IN 条件 -->
+    <!-- 批量删除：foreach 把集合拼成 in (1,2,3)
+         collection="list"：单参数 List 的固定写法；
+         open/close：拼接结果的首尾括号；separator：元素之间的逗号；
+         全部用 #{} 预编译，批量 id 也防注入
+
+
+- 当接口只有**一个 List 集合参数**，不加`@Param`注解时，固定写 `list`。
+- 如果接口写：`int deleteByIds(@Param("idList") List<Integer> idList);`，这里就要改成 `collection="idList"`。
+
+         最终 delete from student2 where id in ( 1,3,5,999 )
+
+-->
     <delete id="deleteByIds">
         delete from student2 where id in
         <foreach collection="list" item="id" open="(" separator="," close=")">
@@ -69,7 +96,14 @@
         FROM student2 WHERE name like #{name}
     </select>
 
-    <!-- 多条件查询 -->
+    <!-- 多条件查询（动态 SQL 三剑客集中示范）：
+         <where>：只输出子标签有内容的条件，并自动剔除开头多余的 AND/OR
+                  （否则"id 为空、name 有值"时会拼出 where AND name like ... 报语法错误）
+         <if test="...">：条件成立才拼接该段 SQL——实现"任意字段为空不参与筛选"
+         concat('%', #{name}, '%')：在 SQL 侧拼模糊匹配符，#{} 依旧预编译防注入
+
+         resultType 传入结果Student对象  parameterType 传出为Student对象-->
+
     <select id="searchStudents" resultType="Student" parameterType="Student">
         SELECT id, name, uname, upass, upass_md5, age, email, phone, gender,
                avatar, create_time, update_time
@@ -98,12 +132,16 @@
         FROM student2 WHERE uname = #{uname}
     </select>
 
-    <!-- 更新头像路径 -->
+    <!-- 更新头像路径
+
+     `#{avatar}`：传入头像文件访问路径（字符串，如`upload/avatar/xxx.jpg`），预编译占位符，防 SQL 注入
+     根据学生id-->
     <update id="updateAvatar">
         UPDATE student2 SET avatar = #{avatar} WHERE id = #{stuId}
     </update>
 
-    <!-- 根据记住我 Token 查询用户 -->
+    <!-- 根据记住我 Token 查询用户
+     `resultType="Student"`：查询结果封装为 Student 实体类 -->
     <select id="findByToken" resultType="Student">
         SELECT id, name, uname, upass, upass_md5, age, email, phone, gender,
                avatar, create_time, update_time, remember_token

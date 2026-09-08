@@ -1,3 +1,12 @@
+<%--
+  注册页面（视图层）
+  【学习要点】
+  1. input 的 name 必须与 Controller @RequestParam("xxx") 的名字一一对应，
+     这是前后端参数传递的"暗号"；required 是 HTML5 原生的前端校验
+  2. 性别用 <select> 下拉框：value 固定为 男/女，从源头避免脏数据入库
+  3. 前端校验只是体验（绕开页面直接发请求即可跳过），
+     后端 Controller 里还有第二道非空/格式校验——双重校验
+--%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <html>

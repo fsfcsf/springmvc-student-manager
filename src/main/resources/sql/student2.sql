@@ -40,24 +40,31 @@ CREATE TABLE `student2`  (
 
 -- ----------------------------
 -- Records of student2
+-- 学习点：INSERT 必须显式写出字段名。本表经历过多轮加字段升级（见 upgrade.sql），
+-- 若按"INSERT INTO 表 VALUES (...)"按位置插入，列数对不上会直接报错：
+-- Column count doesn't match value count at row 1
+-- 大部分演示数据只填早期 6 个字段（upass_md5 为 NULL），
+-- 用户首次登录时由 Service 的"惰性升级"逻辑自动补齐 upass_md5；
+-- 最后 3 行是已升级过的数据：upass 存明文、upass_md5 存对应哈希
+-- （如 0a113ef... 即 MD5('888')），与注册功能的"双写"设计一致
 -- ----------------------------
-INSERT INTO `student2` VALUES (4, '张三', '123456', '123456', 40, '123456@qq.com');
-INSERT INTO `student2` VALUES (6, '张四', '456789', '456789', 40, '456789@q.com');
-INSERT INTO `student2` VALUES (55, '55', '55', '55', 55, '1@1.com');
-INSERT INTO `student2` VALUES (999, '999', '99', '99', 99, '444@QQ.COM');
-INSERT INTO `student2` VALUES (101, '101', '101', '101', 101, '1@1.com');
-INSERT INTO `student2` VALUES (145, '大', '答复', '00', 11, '333@QQ.com');
-INSERT INTO `student2` VALUES (16, '粉丝', '147', '147', 11, '333@QQ.com');
-INSERT INTO `student2` VALUES (9999, '9999', '9999', '99999', 99, '1@1.com');
-INSERT INTO `student2` VALUES (122, '777', '777', '777', 77, '444@QQ.COM');
-INSERT INTO `student2` VALUES (44, '666', '666', '666', 66, '3422099490@qq.com');
-INSERT INTO `student2` VALUES (88, '44', '44', '44', 44, '18339006732@139.com');
-INSERT INTO `student2` VALUES (888, '555', '555', '555', 55, '333@QQ.com');
-INSERT INTO `student2` VALUES (123, '123', '123', '123', 123, '34224@qq.com');
-INSERT INTO `student2` VALUES (4444, '4444', '4444', '4444', 4, '1@1.com');
-INSERT INTO `student2` VALUES (3, '00', '88', '00', 22, '111');
-INSERT INTO `student2` VALUES (44, '方法', '888', '0a113ef6b61820daa5611c870ed8d5ee', 88, '888789@qq.com');
-INSERT INTO `student2` VALUES (1444, 'ddad', '999', 'b706835de79a2b4e80506f582af3676a', 11, '3422099490@qq.com');
-INSERT INTO `student2` VALUES (232, '奥多西', '0111', '7d7c45b9a935cf9d845fc75679a41559', 11, '18339006732@139.com');
+INSERT INTO `student2` (id, name, uname, upass, age, email) VALUES (4, '张三', '123456', '123456', 40, '123456@qq.com');
+INSERT INTO `student2` (id, name, uname, upass, age, email) VALUES (6, '张四', '456789', '456789', 40, '456789@q.com');
+INSERT INTO `student2` (id, name, uname, upass, age, email) VALUES (55, '55', '55', '55', 55, '1@1.com');
+INSERT INTO `student2` (id, name, uname, upass, age, email) VALUES (999, '999', '99', '99', 99, '444@QQ.COM');
+INSERT INTO `student2` (id, name, uname, upass, age, email) VALUES (101, '101', '101', '101', 101, '1@1.com');
+INSERT INTO `student2` (id, name, uname, upass, age, email) VALUES (145, '大', '答复', '00', 11, '333@QQ.com');
+INSERT INTO `student2` (id, name, uname, upass, age, email) VALUES (16, '粉丝', '147', '147', 11, '333@QQ.com');
+INSERT INTO `student2` (id, name, uname, upass, age, email) VALUES (9999, '9999', '9999', '99999', 99, '1@1.com');
+INSERT INTO `student2` (id, name, uname, upass, age, email) VALUES (122, '777', '777', '777', 77, '444@QQ.COM');
+INSERT INTO `student2` (id, name, uname, upass, age, email) VALUES (44, '666', '666', '666', 66, '3422099490@qq.com');
+INSERT INTO `student2` (id, name, uname, upass, age, email) VALUES (88, '44', '44', '44', 44, '18339006732@139.com');
+INSERT INTO `student2` (id, name, uname, upass, age, email) VALUES (888, '555', '555', '555', 55, '333@QQ.com');
+INSERT INTO `student2` (id, name, uname, upass, age, email) VALUES (123, '123', '123', '123', 123, '34224@qq.com');
+INSERT INTO `student2` (id, name, uname, upass, age, email) VALUES (4444, '4444', '4444', '4444', 4, '1@1.com');
+INSERT INTO `student2` (id, name, uname, upass, age, email) VALUES (3, '00', '88', '00', 22, '111');
+INSERT INTO `student2` (id, name, uname, upass, upass_md5, age, email) VALUES (44, '方法', '888', '888', '0a113ef6b61820daa5611c870ed8d5ee', 88, '888789@qq.com');
+INSERT INTO `student2` (id, name, uname, upass, upass_md5, age, email) VALUES (1444, 'ddad', '999', '999', 'b706835de79a2b4e80506f582af3676a', 11, '3422099490@qq.com');
+INSERT INTO `student2` (id, name, uname, upass, upass_md5, age, email) VALUES (232, '奥多西', '0111', '0111', '7d7c45b9a935cf9d845fc75679a41559', 11, '18339006732@139.com');
 
 SET FOREIGN_KEY_CHECKS = 1;

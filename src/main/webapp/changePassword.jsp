@@ -1,3 +1,8 @@
+<%--
+  修改密码页：原密码 + 新密码 + 确认密码三个字段。
+  ${message}/${error} 分别显示成功/失败提示（Controller 放进 Model）；
+  "两次输入是否一致"的前端提示最终以后端 Controller 校验为准
+--%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <html>

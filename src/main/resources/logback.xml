@@ -1,14 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Logback 日志配置。
+     搭配关系：SLF4J（门面/接口）+ Logback（实现/引擎）——类似 JDBC 与数据库驱动：
+     代码只依赖 SLF4J 的 API，将来想换 Log4j2 只换依赖、一行代码不用改 -->
 <configuration>
+    <!-- appender：日志输出到哪里。ConsoleAppender=控制台（开发期最直观）；
+         生产常用 RollingFileAppender 按天/按大小滚动写文件，配合收集系统消费 -->
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
+            <!-- 输出格式：时间 [线程] 级别(左对齐占 5 格) 日志来源类名 - 消息
+                 %-5level 中的 - 表示左对齐、5 是宽度，保证级别列上下对齐；
+                 %logger{36}：类名最长截断到 36 个字符 -->
             <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            <!-- 显式指定输出编码为 UTF-8：不写这一行时 Logback 用 JVM 默认编码，
+                 中文 Windows 上 JDK8 默认是 GBK，而 IDEA 控制台按 UTF-8 解码，
+                 两边不一致 → 日志里的中文变成 �û���¼ʧ�� 这样的乱码；
+                 钉死 UTF-8 后写入什么字节就按什么字节解码，中文恢复正常 -->
+            <charset>UTF-8</charset>
         </encoder>
     </appender>
 
+    <!-- root：全局默认级别 INFO——INFO/WARN/ERROR 输出，DEBUG 被过滤 -->
     <root level="INFO">
         <appender-ref ref="STDOUT" />
     </root>
 
+    <!-- 本项目代码单独放开到 DEBUG：自己的业务看细日志，
+         第三方框架保持 INFO 免得刷屏——"按包控级别"是日志治理的基本手段 -->
     <logger name="com.jingji" level="DEBUG" />
 </configuration>

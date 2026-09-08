@@ -1,3 +1,16 @@
+<%--
+  学生列表页（核心视图）
+  【数据来源】Controller 的 ModelAndView 放进来的 dateList（学生列表）
+             和 pageInfo（PageHelper 分页信息），注意 dateList 是历史命名（应为 dataList）
+  【学习要点】
+  1. <c:forEach items="${dateList}" var="date">：JSTL 循环渲染表格行，
+     ${date.id} 等价于调用 date.getId()
+  2. 分页导航全部从 ${pageInfo} 取值：hasPreviousPage/prePage/nextPage/pages/total，
+     翻页链接带上 pageSize 防止"翻页后每页条数被重置"
+  3. 批量删除：复选框 name 统一为 ids，提交后 Spring 自动绑定为 List<Integer>
+  4. 密码列写死 ******：视图层脱敏——哪怕库里存了明文也不该展示
+  5. ${sessionScope.loginUser.uname}：显式从 Session 域取当前登录用户
+--%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page isELIgnored="false" %>

@@ -1,6 +1,10 @@
 -- ============================================
 -- 学生管理系统 - 数据库升级脚本
 -- 在 MySQL 中执行此脚本升级 student2 表结构
+--
+-- 【学习点：为什么不直接改 CREATE TABLE 重建？】
+--   开发期可以删表重建，但线上库有真实用户数据，DROP 就全没了；
+--   生产变更只能 ALTER TABLE 逐步演进 + 做好数据迁移（老数据补齐新字段）
 -- ============================================
 
 USE springdb;
@@ -20,12 +24,12 @@ ALTER TABLE student2 ADD COLUMN create_time DATETIME DEFAULT CURRENT_TIMESTAMP C
 -- 5. 新增更新时间字段
 ALTER TABLE student2 ADD COLUMN update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间';
 
--- 6. 将已有数据中明文密码的 MD5 值同步到 upass_md5 字段
--- （数据库中密码长度=32 的已经是 MD5，直接复制；长度≠32 的是明文，需要手动处理）
--- 注意：MySQL 内置 MD5 函数，这里先更新长度=32 的已加密密码
+-- 6. 存量数据迁移第一步：upass 里存的已经是 32 位 MD5 的（早期手工造的数据），
+--    直接"复制"到 upass_md5，避免对哈希再做一次哈希（那就永远对不上了）
 UPDATE student2 SET upass_md5 = upass WHERE CHAR_LENGTH(upass) = 32;
 
--- 7. 把明文密码也用 MD5 加密后存入 upass_md5
+-- 7. 存量数据迁移第二步：upass 里存明文的，用 MySQL 内置 MD5() 函数
+--    批量算好哈希回填——用 CHAR_LENGTH 区分两类数据的技巧
 UPDATE student2 SET upass_md5 = MD5(upass) WHERE CHAR_LENGTH(upass) != 32;
 
 -- 8. 新增头像字段（存储头像文件路径）

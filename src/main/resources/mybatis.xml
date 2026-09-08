@@ -4,10 +4,20 @@
         "http://mybatis.org/dtd/mybatis-3-config.dtd">
 <configuration>
 
-    <!--settings：控制mybatis全局行为-->
+    <!--settings：控制 MyBatis 全局行为-->
     <settings>
-        <!--设置mybatis输出日志-->
+        <!-- 控制台打印 SQL 日志：开发期排查"SQL 有没有执行、参数是什么"全靠它，
+             生产环境应关闭（有性能损耗，且 SQL 日志量巨大） -->
         <setting name="logImpl" value="STDOUT_LOGGING"/>
+        <!-- 开启"下划线列名 → 驼峰属性"自动映射（默认 false，必须显式打开！）：
+             upass_md5 → upassMd5、create_time → createTime、remember_token → rememberToken。
+             本项目所有查询都用 resultType="Student" 且没有写 resultMap，
+             不开这个开关时这些带下划线的列全部映射不进来（属性永远是 null）：
+               1. 登录时 getUpassMd5() 恒为 null → "优先比对 MD5"分支永远不生效，
+                  只能走明文兜底；upass 存哈希的老账号（如 232、1444）彻底无法登录；
+               2. updateStudent 回填密码时把 null 写回 upass_md5 列，密文被清空；
+               3. 个人资料页的 createTime/updateTime 永远显示为空 -->
+        <setting name="mapUnderscoreToCamelCase" value="true"/>
     </settings>
 
     <!--设置别名-->
@@ -19,13 +29,16 @@
         <package name="com.jingji.entity"/>
     </typeAliases>
 
-    <!-- 如果有类型处理器，确保编码 -->
+    <!-- 类型处理器：负责 Java 类型 ↔ JDBC 类型的互转（如 String ↔ VARCHAR）。
+         StringTypeHandler 是 MyBatis 内置的默认处理器，此处显式声明属于
+         冗余配置（不写效果完全相同），保留用作了解 typeHandler 机制的示例 -->
     <typeHandlers>
         <typeHandler handler="org.apache.ibatis.type.StringTypeHandler"
                      javaType="java.lang.String" jdbcType="VARCHAR"/>
     </typeHandlers>
 
-    <!-- PageHelper 分页插件配置 -->
+    <!-- PageHelper 分页插件：基于 MyBatis 的拦截器（Interceptor）机制，
+         拦截 Executor 的 query，把原 SQL 自动改写成"count 总数 + limit 分页" -->
     <plugins>
         <plugin interceptor="com.github.pagehelper.PageInterceptor">
             <!-- 分页参数合理化：pageNum<=0 时查第一页，pageNum>总页数时查最后一页 -->

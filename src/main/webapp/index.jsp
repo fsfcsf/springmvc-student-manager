@@ -1,3 +1,15 @@
+<%--
+  登录首页（视图层）
+  【学习要点】
+  1. EL 表达式 ${xxx}：按 page→request→session→application 的就近顺序找属性输出，
+     ${error} 显示 Controller 校验失败时塞进 Model 的错误信息
+  2. ${pageContext.request.contextPath}：应用根路径（如 /springMVCTest01），
+     所有链接/表单 action 都拼上它——部署路径变化时不会 404（写绝对路径的规范做法）
+  3. JSTL 的 <c:if test="${not empty error}">：JSP 版的 if，
+     比 scriptlet（<% if... %> 混写 Java 代码）干净可维护
+  4. 验证码 <img> 的 src 指向 /user/captcha，onclick 追加时间戳参数：
+     URL 每次都不同，骗过浏览器缓存实现"点击换一张"
+--%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <html>

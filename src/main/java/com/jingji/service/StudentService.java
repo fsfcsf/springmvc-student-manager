@@ -5,8 +5,14 @@ import com.jingji.entity.Student;
 import java.util.List;
 
 /**
- * 学生业务逻辑接口
- * 定义学生相关的业务方法
+ * 学生业务逻辑接口（Service 层的"契约"）
+ * 只定义"做什么"（方法签名），不定义"怎么做"——实现类在 service.impl 包下
+ *
+ * 【为什么 Controller 依赖接口而不是实现类】
+ *   1. 解耦：换实现（比如加缓存的版本）Controller 一行不用改；
+ *   2. 可测：单元测试注入 Mock 实现即可脱离数据库测 Controller 逻辑；
+ *   3. Spring 的 @Autowired 按接口类型注入，自动匹配到唯一实现类，
+ *      若有多个实现需配合 @Qualifier("beanName") 指定。
  *
  * @author 张三
  * @date 2025-11-10

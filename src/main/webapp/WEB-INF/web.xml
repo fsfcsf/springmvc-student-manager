@@ -9,14 +9,25 @@
          version="3.0"
          >
   <display-name>Archetype Created Web Application</display-name>
-  <!--  配置前端控制器DispatcherServlet-->
+  <!-- 前端控制器 DispatcherServlet：Spring MVC 的"总入口"。
+       请求链路：Tomcat 收到请求 → 编码过滤器 → DispatcherServlet
+       → 按 @RequestMapping 分发到具体 Controller 方法。
+       url-pattern 为 "/"：拦截除 *.jsp 外的所有请求
+       （JSP 由容器默认 Servlet 处理），静态资源靠
+       springmvc.xml 的 <mvc:default-servlet-handler/> 放行 -->
   <servlet>
     <servlet-name>DispatcherServlet</servlet-name>
     <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+    <!-- 指定 Spring 配置文件位置；不配此参数时默认去
+         /WEB-INF/DispatcherServlet-servlet.xml 找配置 -->
     <init-param>
       <param-name>contextConfigLocation</param-name>
+      <!-- classpath*: 前缀会连 jar 包里的同名配置一起扫；classpath: 只扫本应用 -->
       <param-value>classpath*:springmvc.xml</param-value>
     </init-param>
+    <!-- 学习点：可加 <load-on-startup>1</load-on-startup> 让容器启动时立刻
+         初始化（创建 IoC 容器、扫描 Bean），而不是等第一次请求才初始化，
+         避免"第一个用户买单"启动耗时 -->
   </servlet>
 
 
@@ -24,14 +35,18 @@
     <servlet-name>DispatcherServlet</servlet-name>
     <url-pattern>/</url-pattern>
   </servlet-mapping>
-  <!-- 确保JSP支持EL表达式 -->
+  <!-- 确保 JSP 不忽略 EL 表达式（web.xml 3.0 默认已启用，此处双保险） -->
   <jsp-config>
     <jsp-property-group>
       <url-pattern>*.jsp</url-pattern>
       <el-ignored>false</el-ignored>
     </jsp-property-group>
   </jsp-config>
-    <!-- 字符编码过滤器 -->
+    <!-- 字符编码过滤器：请求/响应统一 UTF-8，解决 POST 表单中文乱码。
+         forceEncoding=true：请求和响应都强制转码。
+         注意：Filter 是 Servlet 规范、由 Tomcat 调用，先于 Spring 的
+         拦截器执行；GET 乱码需改 Tomcat connector 编码
+         （Tomcat 8+ 默认 UTF-8，已基本无此问题） -->
     <filter>
         <filter-name>characterEncodingFilter</filter-name>
         <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>

@@ -1,3 +1,12 @@
+<%--
+  多条件查询结果页
+  【与列表页的区别】
+  1. 表单回显：value="${name}"——Controller 把查询条件塞回 Model，
+     输入框显示上次输入的内容，用户可以微调条件再查
+  2. 翻页链接必须携带全部查询参数（&id=${id}&name=${name}&...）——
+     多条件分页最容易丢条件，丢了点"下一页"就变成查全部
+  3. 查询表单 method="get"：参数在 URL 上，整页搜索结果可以直接复制分享
+--%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page isELIgnored="false" %>

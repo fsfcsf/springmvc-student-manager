@@ -1,8 +1,17 @@
 package com.jingji.entity;
 
 /**
- * 学生实体类
- * 对应数据库中的 student2 表
+ * 学生实体类（Entity / POJO）
+ * 与数据库 student2 表的列一一对应，是贯穿三层架构的"数据载体"
+ *
+ * 【学习要点】
+ *   1. 数据库列 upass_md5 ↔ Java 属性 upassMd5：MyBatis 查询时自动完成
+ *      "列名 → 驼峰属性"的映射填充（本项目靠列名与属性名的对应规则）；
+ *   2. 基本类型 vs 包装类型：id/age 用 int——默认值 0 恰好被本项目当作
+ *      "未填写"的哨兵值（动态 SQL 判 id != 0）；若需要区分"没填"和"填了 0"，
+ *      就应改用 Integer，null 表示未填；
+ *   3. toString() 刻意不打印 upass/upassMd5/rememberToken——
+ *      敏感字段不进日志，这是一条容易忽略的安全习惯。
  *
  * @author 张三
  * @date 2025-11-10

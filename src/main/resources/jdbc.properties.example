@@ -1,4 +1,7 @@
 # 数据库连接配置（模板文件）
+# 使用方法：复制本文件为 jdbc.properties 并填入真实值。
+# jdbc.properties 已被 .gitignore 忽略——数据库密码不提交到仓库，
+# "敏感信息不进版本库"是工程基本素养；团队协作时每人本地一份真实配置
 
 jdbc.url=jdbc:mysql://localhost:3306/springdb?useUnicode=true&characterEncoding=utf8
 jdbc.username=your_username

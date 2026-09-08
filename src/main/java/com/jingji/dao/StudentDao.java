@@ -6,8 +6,22 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 /**
- * 学生数据访问接口
- * MyBatis 会自动生成这个接口的代理实现类
+ * ═══════════════════════════════════════════════════════════════════
+ * 学生数据访问接口（DAO 层 / Mapper）
+ * ═══════════════════════════════════════════════════════════════════
+ * 【只写接口不写实现——MyBatis 接口代理原理（面试高频）】
+ *   1. springmvc.xml 的 MapperScannerConfigurer 扫描本包，
+ *      为每个接口注册 MapperFactoryBean；
+ *   2. 其内部调用 sqlSession.getMapper(StudentDao.class)，
+ *      返回 JDK 动态代理对象（MapperProxy）；
+ *   3. 调用接口方法时，代理按"接口全限定名(namespace) + 方法名(id)"
+ *      定位 StudentDao.xml 中对应的 SQL 执行——所以方法名必须与 XML 的 id 一致；
+ *   4. SQL 写在 XML 里而不是注解里：动态 SQL 标签(<if>/<where>/<foreach>)
+ *      在 XML 中更清晰，复杂 SQL 也是行业惯例。
+ *
+ * 【@Param 的作用】
+ *   多参数方法必须用它给每个参数命名，SQL 里才能用 #{命名} 取值；
+ *   单参数（对象/单值）可以不加，MyBatis 自动绑定。
  *
  * @author 张三
  * @date 2025-11-10
